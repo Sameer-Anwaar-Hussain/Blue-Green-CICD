@@ -1,0 +1,54 @@
+---
+# MySQL Deployment with Resource Requests and Limits
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banking-mysql
+  labels:
+    project: banking-app
+    component: database
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+        component: database
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "Test@123"
+        - name: MYSQL_DATABASE
+          value: "bankingdb"
+        ports:
+        - containerPort: 3306
+          name: mysql
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+# MySQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  labels:
+    project: banking-app
+    component: database
+spec:
+  ports:
+  - port: 3306
+    targetPort: 3306
+  selector:
+    app: mysql
